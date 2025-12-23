@@ -1,41 +1,32 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useContext, useEffect } from 'react';
+import { SignIn, useUser } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
+import ClerkFlagContext from '../ClerkFlagContext';
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const clerkEnabled = useContext(ClerkFlagContext);
+  const { isSignedIn } = useUser();
+  const navigate = useNavigate();
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      alert('Logged in (demo)');
-    }, 800);
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate('/', { replace: true });
+    }
+  }, [isSignedIn, navigate]);
+
+  if (!clerkEnabled) {
+    return (
+      <main style={{ padding: 24 }}>
+        <h2>Sign In</h2>
+        <p>Clerk is not configured. Please set your Clerk publishable key in `.env`.</p>
+      </main>
+    );
   }
 
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Welcome back</h2>
-        <p className="muted">Sign in to continue to CoastalMenu</p>
-        <form onSubmit={handleSubmit} className="form">
-          <label>
-            Email
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
-          </label>
-          <label>
-            Password
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
-          </label>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Signing in…' : 'Sign In'}
-          </button>
-        </form>
-        <p className="muted small">
-          No account? <Link to="/register">Create one</Link>
-        </p>
+        <SignIn routing="path" path="/login" />
       </div>
       <div className="auth-side">
         <img src="/signdish.jpg" alt="Food collage" />

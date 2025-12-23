@@ -1,6 +1,11 @@
 import { Link, NavLink } from 'react-router-dom';
+import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
+import { useContext } from 'react';
+import ClerkFlagContext from '../ClerkFlagContext';
 
 function Navbar() {
+  const clerkEnabled = useContext(ClerkFlagContext);
+
   return (
     <nav className="nav">
       <div className="nav-inner">
@@ -16,12 +21,29 @@ function Navbar() {
           <NavLink to="/about" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
             About
           </NavLink>
-          <NavLink to="/login" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-            Login
+          <NavLink to="/profile" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            Profile
           </NavLink>
-          <NavLink to="/register" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-            Register
-          </NavLink>
+
+          {clerkEnabled ? (
+            <>
+              <SignedOut>
+                <NavLink to="/login" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                  Sign In
+                </NavLink>
+              </SignedOut>
+
+              <SignedIn>
+                <div style={{ marginLeft: 12 }}>
+                  <UserButton />
+                </div>
+              </SignedIn>
+            </>
+          ) : (
+            <NavLink to="/login" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+              Sign In
+            </NavLink>
+          )}
         </div>
       </div>
     </nav>
